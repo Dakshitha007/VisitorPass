@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisitorPass | Approvals</title>
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-white">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand fw-bold" href="/">VisitorPass</a>
+        <div class="d-flex align-items-center gap-3 ms-auto">
+            <span class="text-white small">Current user: <strong>Administrator</strong></span>
+            <button type="button" class="btn btn-outline-light btn-sm">Logout</button>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row min-vh-100">
+        <aside class="col-12 col-lg-3 col-xl-2 bg-light border-end p-0">
+            <div class="p-4 border-bottom">
+                <p class="text-uppercase text-primary small fw-bold mb-1">Management Portal</p>
+                <h1 class="h5 mb-0">Operations Dashboard</h1>
+            </div>
+            <nav class="nav nav-pills flex-column p-3 gap-1" aria-label="Primary navigation">
+                <a class="nav-link text-dark" href="/">Dashboard</a>
+                <a class="nav-link text-dark" href="/resident-page">Residents</a>
+                <a class="nav-link active" aria-current="page" href="/approval-page">Visitor Approvals</a>
+                <a class="nav-link text-dark" href="/approval-page">OTP Verification</a>
+                <a class="nav-link text-dark" href="#visitor-requests">Reports</a>
+            </nav>
+        </aside>
+
+        <main class="col-12 col-lg-9 col-xl-10 p-4 p-xl-5">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+                <div>
+                    <p class="text-primary text-uppercase small fw-bold mb-1">Access Control</p>
+                    <h2 class="h3 fw-bold mb-1">Visitor Approvals</h2>
+                    <p class="text-secondary mb-0">Review visitor requests and manage secure entry passes.</p>
+                </div>
+                <span class="badge text-bg-light border text-secondary px-3 py-2">Tuesday, September 29, 2026</span>
+            </div>
+
+            <section class="row g-4 mb-5" aria-label="Approval statistics">
+                <div class="col-12 col-sm-6 col-xl">
+                    <div class="card h-100 border shadow-sm"><div class="card-body p-4">
+                        <p class="text-secondary small mb-2">Pending Approvals</p>
+                        <p class="display-6 fw-bold text-primary mb-0" th:text="${pendingApprovalCount}">0</p>
+                    </div></div>
+                </div>
+                <div class="col-12 col-sm-6 col-xl">
+                    <div class="card h-100 border shadow-sm"><div class="card-body p-4">
+                        <p class="text-secondary small mb-2">Approved Today</p>
+                        <p class="display-6 fw-bold text-primary mb-0" th:text="${approvedTodayCount}">0</p>
+                    </div></div>
+                </div>
+                <div class="col-12 col-sm-6 col-xl">
+                    <div class="card h-100 border shadow-sm"><div class="card-body p-4">
+                        <p class="text-secondary small mb-2">Rejected</p>
+                        <p class="display-6 fw-bold text-primary mb-0" th:text="${rejectedCount}">0</p>
+                    </div></div>
+                </div>
+                <div class="col-12 col-sm-6 col-xl">
+                    <div class="card h-100 border shadow-sm"><div class="card-body p-4">
+                        <p class="text-secondary small mb-2">OTP Generated</p>
+                        <p class="display-6 fw-bold text-primary mb-0" th:text="${otpGeneratedCount}">0</p>
+                    </div></div>
+                </div>
+                <div class="col-12 col-sm-6 col-xl">
+                    <div class="card h-100 border shadow-sm"><div class="card-body p-4">
+                        <p class="text-secondary small mb-2">Visitors Inside</p>
+                        <p class="display-6 fw-bold text-primary mb-0" th:text="${visitorsInsideCount}">0</p>
+                    </div></div>
+                </div>
+            </section>
+
+            <section class="row g-4 mb-5" aria-label="Visitor approval and OTP verification">
+                <div class="col-12 col-xl-7">
+                    <div class="card h-100 border shadow-sm">
+                        <div class="card-header bg-white p-4">
+                            <h3 class="h5 fw-bold mb-1">Visitor Approval Form</h3>
+                            <p class="text-secondary small mb-0">Create a visitor request and generate a secure OTP.</p>
+                        </div>
+                        <div class="card-body p-4">
+                            <form>
+                                <div class="row g-3">
+                                    <div class="col-12 col-md-6">
+                                        <label for="resident-name" class="form-label">Resident Name</label>
+                                        <select id="resident-name" class="form-select">
+                                            <option selected>Select resident</option>
+                                            <option th:each="resident : ${residents}" th:value="${resident.name}" th:text="${resident.name}"></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label for="flat-number" class="form-label">Flat Number</label>
+                                        <select id="flat-number" class="form-select">
+                                            <option selected>Select flat</option>
+                                            <option th:each="resident : ${residents}" th:value="${resident.flatNumber}" th:text="${resident.flatNumber}"></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label for="visitor-name" class="form-label">Visitor Name</label>
+                                        <input id="visitor-name" type="text" class="form-control" placeholder="Enter visitor name" required pattern="^[A-Za-z ]+$">
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label for="visitor-phone" class="form-label">Visitor Phone</label>
+                                        <input id="visitor-phone" type="tel" class="form-control" placeholder="Enter phone number" required minlength="10" maxlength="10" pattern="[6-9][0-9]{9}">
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="visit-purpose" class="form-label">Purpose of Visit</label>
+                                        <textarea id="visit-purpose" class="form-control" rows="2" placeholder="Describe the purpose of the visit" required minlength="5" maxlength="200"></textarea>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label for="visit-date" class="form-label">Visit Date</label>
+                                        <input id="visit-date" type="date" class="form-control" required>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label for="arrival-time" class="form-label">Expected Arrival Time</label>
+                                        <input id="arrival-time" type="time" class="form-control" required>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label for="visitor-count" class="form-label">Number of Visitors</label>
+                                        <input id="visitor-count" type="number" min="1" class="form-control" placeholder="1">
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="vehicle-number" class="form-label">Vehicle Number <span class="text-secondary fw-normal">(Optional)</span></label>
+                                        <input id="vehicle-number" type="text" class="form-control" placeholder="Example: KA-01-AB-1234">
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-column flex-sm-row justify-content-end gap-2 mt-4">
+                                    <button type="reset" class="btn btn-outline-secondary px-4">Reset</button>
+                                    <button type="button" class="btn btn-primary px-4">Generate OTP</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-xl-5">
+                    <div class="card h-100 border shadow-sm">
+                        <div class="card-header bg-white p-4">
+                            <h3 class="h5 fw-bold mb-1">OTP Verification</h3>
+                            <p class="text-secondary small mb-0">Validate the pass before visitor entry.</p>
+                        </div>
+                        <div class="card-body p-4 d-flex flex-column">
+                            <label for="otp-input" class="form-label">Enter OTP</label>
+                            <input id="otp-input" type="text" inputmode="numeric" maxlength="6" minlength="6" pattern="[0-9]{6}" required class="form-control form-control-lg text-center mb-3" placeholder="000000">
+                            <div class="d-flex flex-column flex-sm-row gap-2 mb-4">
+                                <button type="button" class="btn btn-primary flex-grow-1">Verify OTP</button>
+                                <button type="button" class="btn btn-outline-primary flex-grow-1">Resend OTP</button>
+                            </div>
+                            <div class="border rounded p-4 bg-light mt-auto">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h4 class="h6 fw-bold mb-0">OTP Status</h4>
+                                    <span class="badge text-bg-success">Generated</span>
+                                </div>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <span class="badge text-bg-success">Generated</span>
+                                    <span class="badge text-bg-primary">Verified</span>
+                                    <span class="badge text-bg-secondary">Expired</span>
+                                    <span class="badge text-bg-danger">Invalid</span>
+                                </div>
+                                <p class="text-secondary small mb-0 mt-3">Enter the six-digit passcode issued for the selected visitor.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="visitor-requests" class="card border shadow-sm" aria-labelledby="requests-heading">
+                <div class="card-header bg-white p-4">
+                    <div class="d-flex flex-column flex-xl-row justify-content-between align-items-xl-center gap-3">
+                        <div>
+                            <h3 id="requests-heading" class="h5 fw-bold mb-1">Today's Visitor Requests</h3>
+                            <p class="text-secondary small mb-0">Review and manage visitor access requests.</p>
+                        </div>
+                        <div class="row g-2 w-100 w-xl-auto">
+                            <div class="col-12 col-md">
+                                <label class="visually-hidden" for="visitor-search">Search visitor</label>
+                                <input id="visitor-search" type="search" class="form-control" placeholder="Search visitor">
+                            </div>
+                            <div class="col-12 col-sm">
+                                <label class="visually-hidden" for="date-filter">Filter by date</label>
+                                <input id="date-filter" type="date" class="form-control" aria-label="Filter by date">
+                            </div>
+                            <div class="col-12 col-sm">
+                                <label class="visually-hidden" for="status-filter">Filter by status</label>
+                                <select id="status-filter" class="form-select">
+                                    <option selected>All statuses</option>
+                                    <option>Pending</option>
+                                    <option>Approved</option>
+                                    <option>Rejected</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-sm">
+                                <label class="visually-hidden" for="flat-filter">Filter by flat</label>
+                                <select id="flat-filter" class="form-select">
+                                    <option selected>All flats</option>
+                                    <option>A-101</option>
+                                    <option>B-204</option>
+                                    <option>C-302</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                        <tr>
+                            <th scope="col" class="px-4">Approval ID</th>
+                            <th scope="col">Visitor Name</th>
+                            <th scope="col">Resident</th>
+                            <th scope="col">Flat</th>
+                            <th scope="col">Purpose</th>
+                            <th scope="col">Visit Date</th>
+                            <th scope="col">OTP</th>
+                            <th scope="col">Approval Status</th>
+                            <th scope="col">Security Status</th>
+                            <th scope="col" class="text-end px-4">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <footer class="text-secondary small text-center mt-5">VisitorPass Management System</footer>
+        </main>
+    </div>
+</div>
+
+<script src="/script.js"></script>
+</body>
+</html>
